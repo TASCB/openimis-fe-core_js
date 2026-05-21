@@ -18,10 +18,13 @@ const styles = (theme) => ({
 const Help = ({ classes }) => {
   const modulesManager = useModulesManager();
   const { formatMessage } = useTranslations(MODULE_NAME, modulesManager);
+  // TASAF: serve documentation locally from /docs (bundled in openimis-fe_js/public/docs).
+  // Override `helpUrl` via ModuleConfiguration to point at a different location per env.
+  const helpUrl = modulesManager.getConf("fe-core", "helpUrl", "/docs/index.html");
   const isCoreMISHelp = modulesManager.getConf("fe-core", "redirectToCoreMISConfluenceUrl", false);
-  const url = isCoreMISHelp ? CORE_MIS_CONFLUENCE_URL : DEFAULT_URL;
+  const url = isCoreMISHelp ? CORE_MIS_CONFLUENCE_URL : helpUrl || DEFAULT_URL;
   const onClick = () => {
-    window.open(url);
+    window.open(url, "_blank", "noopener");
   };
 
   return (
