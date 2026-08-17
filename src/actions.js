@@ -84,7 +84,9 @@ export function journalize(mutation, meta) {
 }
 
 function isCsrfError(error) {
-  return error?.message?.includes("CSRF token missing or incorrect.");
+  const message = String(error?.message ?? "");
+  const key = message.replace(/['"]/g, "").trim();
+  return message.includes("CSRF token missing or incorrect.") || key === "csrftoken" || key === "HTTP_X_CSRFTOKEN";
 }
 
 export function graphql(payload, type = "GRAPHQL_QUERY", params = {}) {
@@ -329,13 +331,7 @@ export function fetch(config) {
         });
       }
 
-      const norm = (m) => String(m || "").toLowerCase().replace(/['"]/g, "").trim();
-      const csrfError = gqlErrors.some((e) => {
-        const msg = norm(e?.message);
-        return msg === "csrftoken" 
-        || msg === "user not authorized for this operation" 
-        || msg === "unauthorized";
-      });
+      const csrfError = gqlErrors.some(isCsrfError);
 
       if (csrfError) {
         dispatch(
