@@ -283,6 +283,8 @@ class MainMenuContribution extends Component {
     const updatedEntries = fetchSubmenuConfig(
       modulesManager, allEntries, this.props.entries, this.props.menuId, this.props.rights
     );
+    // A heading with no entry the user may open is hidden rather than shown empty.
+    if (!updatedEntries.length) return null;
     if (menuVariant === "AppBar") {
       return this.appBarMenu(updatedEntries);
     } else {
