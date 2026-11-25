@@ -93,11 +93,14 @@ const App = (props) => {
       const cookieLang = getCookie(PUBLIC_PAGE_LANGUAGE_STORAGE_KEY);
       lang = cookieLang ? cookieLang : localesManager.getFileNameByLang(navigator.language) ?? "en";
     }
-    var msgs = modulesManager
+    const inLanguage = (key) => modulesManager
       .getContribs(TRANSLATION_CONTRIBUTION_KEY)
-      .filter((msgs) => msgs.key === lang)
+      .filter((msgs) => msgs.key === key)
       .reduce((allmsgs, msgs) => Object.assign(allmsgs, msgs.messages), {});
-    return { ...messages, ...msgs };
+    // A text a module has not translated into the user's language falls back to its English text, so a language
+    // that only some modules translate (Swahili) never shows raw message ids.
+    const english = lang === "en" ? {} : inLanguage("en");
+    return { ...messages, ...english, ...inLanguage(lang || "en") };
   }, [user?.language, messages]);
 
   useEffect(() => {
